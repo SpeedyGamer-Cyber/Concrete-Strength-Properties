@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Concrete Strength Properties</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Chart.js (for plots) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- MathJax (for LaTeX formulas in detailed calculations) -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(','\\)'], ['$', '$']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="topbar__inner">
+      <div class="topbar__left">
+        <img class="brand__logo" src="assets/logo.png" alt="LR logo" />
+        <div class="brand__text">
+          <div class="brand__title">Concrete Strength Properties</div>
+          <div class="brand__subtitle">EN 1992-1-1 Based Calculator</div>
+        </div>
+      </div>
+
+      <div class="topbar__actions">
+        <button id="btnPrint" class="btn btn--ghost" title="Print">
+          <span class="btn__icon">🖨️</span><span class="btn__text">Print</span>
+        </button>
+
+        <div class="toggle">
+          <span class="toggle__label">Dark</span>
+          <label class="switch" aria-label="Toggle dark mode">
+            <input id="themeToggle" type="checkbox">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="grid">
+      <!-- Inputs (left) -->
+      <section class="card" id="inputsCard">
+        <div class="card__header">
+          <h2>Inputs</h2>
+          <p class="muted">Enter parameters then calculate.</p>
+        </div>
+
+        <div class="form">
+          <div class="field">
+            <label for="grade">Grade (Table 3.1)</label>
+            <select id="grade"></select>
+          </div>
+
+          <div class="field">
+            <label for="cem">Cement type (s coefficient)</label>
+            <select id="cem">
+              <option value="R">Class R (rapid)</option>
+              <option value="N" selected>Class N (normal)</option>
+              <option value="S">Class S (slow)</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="agg">Aggregate type</label>
+            <select id="agg">
+              <option value="Quartzite" selected>Quartzite</option>
+              <option value="Limestone">Limestone</option>
+              <option value="Sandstone">Sandstone</option>
+              <option value="Basalt">Basalt</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="confinement">Concrete condition</label>
+            <select id="confinement">
+              <option value="nonconfined" selected>Nonconfined</option>
+              <option value="confined">Confined</option>
+            </select>
+          </div>
+
+          <div id="sigma2Wrap" class="field field--hidden">
+            <label for="sigma2">σ₂ (effective lateral compressive stress, MPa)</label>
+            <input id="sigma2" type="number" min="0" step="0.01" value="0.00">
+            <div class="hint">Only used for confined concrete enhancement.</div>
+          </div>
+
+          <div class="field">
+            <label for="gammaC">γ<sub>c</sub> (partial safety factor)</label>
+            <input id="gammaC" type="number" min="0.1" step="0.01" value="1.50">
+          </div>
+
+          <div class="field">
+            <label for="alphaCC">α<sub>cc</sub> (long-term effects coefficient)</label>
+            <input id="alphaCC" type="number" min="0.1" step="0.01" value="0.85">
+          </div>
+
+          <div class="field">
+            <label for="alphaCT">α<sub>ct</sub> (tensile long-term coefficient)</label>
+            <input id="alphaCT" type="number" min="0.1" step="0.01" value="1.00">
+            <div class="hint">Commonly 1.0; included for completeness.</div>
+          </div>
+
+          <div class="field">
+            <label for="ageT">t (age of concrete, days)</label>
+            <input id="ageT" type="number" min="0" step="1" value="28">
+          </div>
+
+          <div class="actions">
+            <button id="btnCalc" class="btn btn--primary">Calculate</button>
+            <button id="btnPlot" class="btn btn--secondary">Plot</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Summary (right) -->
+      <section class="card" id="summaryCard">
+        <div class="card__header">
+          <h2>Summary of Results</h2>
+          <p class="muted">As per Table 3.1 & Estimated parameters at time t</p>
+        </div>
+
+        <div id="summaryGrid" class="summaryGrid">
+          <div class="placeholder">Run a calculation to see results.</div>
+        </div>
+      </section>
+
+      <!-- Plot (below) -->
+      <section class="card span-2" id="plotCard">
+        <div class="card__header card__header--row">
+          <div>
+            <h2>Plot</h2>
+            <p class="muted">Select the plot from drop-down list</p>
+          </div>
+          <div class="inline">
+            <label class="sr-only" for="plotParam">Parameter</label>
+            <select id="plotParam" class="select--compact">
+              <optgroup label="Parameter vs Age">
+                <option value="fcm_t">fcm(t) vs t</option>
+                <option value="fctm_t">fctm(t) vs t</option>
+                <option value="Ecm_t">Ecm(t) vs t</option>
+              </optgroup>
+              <optgroup label="Stress–Strain Curves">
+                <option value="ss_parabola">Parabolic-Rectangular</option>
+                <option value="ss_bilinear">Bi-linear</option>
+                <option value="ss_nonlinear">Nonlinear (EN)</option>
+              </optgroup>
+            </select>
+          </div>
+        </div>
+
+        <div class="chartWrap">
+          <canvas id="chart"></canvas>
+        </div>
+
+        <div class="note muted" id="plotNote">
+          Tip: Use “Calculate” first, then “Plot” to refresh the chart.
+        </div>
+      </section>
+
+      <!-- Detailed calculations -->
+      <section class="card span-2" id="detailsCard">
+        <div class="card__header">
+          <h2>Detailed Calculations</h2>
+          <p class="muted">Step-by-step calculations including formulas and substitutions.</p>
+        </div>
+
+        <div id="details" class="details">
+          <div class="placeholder">Run a calculation to generate the detailed calculation log.</div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer muted">
+    Built for Concrete Strength Properties • Light/Dark mode • Print-ready.
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
