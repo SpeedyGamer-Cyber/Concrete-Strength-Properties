@@ -67,10 +67,10 @@ function fmtGPa0(value) {
   return String(Math.round(Number(value)));
 }
 
-// βcc(t): show 2 decimals
+// βcc(t): show 3 decimals
 function fmtBeta2(value) {
   if (value === null || value === undefined || Number.isNaN(value)) return "—";
-  return Number(value).toFixed(2);
+  return Number(value).toFixed(3);
 }
 
 // Strain (‰): show 2 decimals
@@ -349,7 +349,7 @@ function renderDetails(res) {
       dLine("Characteristic compressive strength used", `\\( f_{ck} = ${fmtMPaUp0(res.fck_used)}\\,\\text{MPa} \\)`),
       dLine("Mean compressive strength", `\\( f_{cm}=f_{ck}+8 = ${fmtMPaUp0(res.fck_used)}+8 = ${fmtMPaUp0(res.fcm_used)}\\,\\text{MPa} \\)`),
       dLine("Age factor", `\\( \\beta_{cc}(t)=\\exp\\left[s\\left(1-\\sqrt{\\frac{28}{t}}\\right)\\right]=\\exp\\left[${res.s}\\left(1-\\sqrt{\\frac{28}{${fmtInt(inp.t)}}}\\right)\\right]=${fmtBeta2(res.bcc)} \\)`),
-      dLine("Age-dependent mean strength", `\\( f_{cm}(t)=\\beta_{cc}(t)\\,f_{cm}=${fmtBeta2(res.bcc)}\\times${fmt(res.fcm_used,1)}=${fmt(res.fcm_t,0)}\\,\\text{MPa}\\)`),
+      dLine("Age-dependent mean strength", `\\( f_{cm}(t)=\\beta_{cc}(t)\\,f_{cm}=${fmtBeta2(res.bcc)}\\times${fmt(res.fcm_used,1)}=${fmt(res.fcm_t,1)}\\,\\text{MPa}\\)`),
       dLine("Design compressive strength", `\\( f_{cd}=\\frac{\\alpha_{cc}f_{ck}}{\\gamma_c}=\\frac{${fmt(inp.alphaCC,2)}\\times${fmt(res.fck_used,0)}}{${fmt(inp.gammaC,2)}}=${fmt(res.fcd,0)}\\,\\text{MPa}\\)`)
     ]
   ));
@@ -363,11 +363,11 @@ function renderDetails(res) {
     [
       dLine("Mean tensile strength at 28 days (formula)", tensileFormula),
       dLine("Computed mean tensile (numeric)", `\\( f_{ctm}=${fmt(res.fctm_calc,2)}\\,\\text{MPa}\\)`),
-      dLine("Characteristic tensile 5%", `\\( f_{ctk,0.05}=0.7\\,f_{ctm}=0.7\\times${fmt(res.fctm_calc,2)}=${fmt(res.fctk005_calc,2)}\\,\\text{MPa}\, \approx \, ${fmtMPaUp1(res.fctk005_calc)}\\,\\text{MPa}\\)`),
-      dLine("Characteristic tensile 95%", `\\( f_{ctk,0.95}=1.3\\,f_{ctm}=1.3\\times${fmt(res.fctm_calc,2)}=${fmt(res.fctk095_calc,2)}\\,\\text{MPa}\, \approx \,${fmtMPaUp1(res.fctk095_calc)}\\,\\text{MPa}\\)`),
+      dLine("Characteristic tensile 5%", `\\( f_{ctk,0.05}=0.7\\,f_{ctm}=0.7\\times${fmt(res.fctm_calc,2)}=${fmt(res.fctk005_calc,2)}\\,\\text{MPa}\\)`),
+      dLine("Characteristic tensile 95%", `\\( f_{ctk,0.95}=1.3\\,f_{ctm}=1.3\\times${fmt(res.fctm_calc,2)}=${fmt(res.fctk095_calc,2)}\\,\\text{MPa}\\)`),
       dLine("Age exponent", `\\( \\alpha=${fmt(res.alphaAge,3)}\\; (1\\;\\text{for }t\\le 28\;2/3 \\; \\text{for }t>28)\\)`),
-      dLine("Age-dependent mean tensile", `\\( f_{ctm}(t)=\\beta_{cc}(t)^{\\alpha}\\,f_{ctm}=${fmt(res.fctm_t,2)}\\,\\text{MPa}\, \approx \,${fmtMPaUp1(res.fctm_t)}\\,\\text{MPa}\\)`),
-      dLine("Design tensile strength", `\\( f_{ctd}=\\frac{\\alpha_{ct}f_{ctk,0.05}}{\\gamma_c}=\\frac{${fmt(inp.alphaCT,2)}\\times${fmt(res.fctk005_calc,2)}}{${fmt(inp.gammaC,2)}}=${fmt(res.fctd,2)}\\,\\text{MPa}\, \approx \,${fmtMPaUp1(res.fctd)}\\,\\text{MPa}\\)`)
+      dLine("Age-dependent mean tensile", `\\( f_{ctm}(t)=\\beta_{cc}(t)^{\\alpha}\\,f_{ctm}=${fmt(res.fctm_t,2)}\\,\\text{MPa}\\)`),
+      dLine("Design tensile strength", `\\( f_{ctd}=\\frac{\\alpha_{ct}f_{ctk,0.05}}{\\gamma_c}=\\frac{${fmt(inp.alphaCT,2)}\\times${fmt(res.fctk005_calc,2)}}{${fmt(inp.gammaC,2)}}=${fmt(res.fctd,2)}\\,\\text{MPa}\\)`)
     ]
   ));
 
