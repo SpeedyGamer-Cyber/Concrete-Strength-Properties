@@ -297,7 +297,26 @@ body{
 .inline{ display: flex; align-items: center; gap: 8px; }
 
 @media print{
-  .topbar, .actions, #plotNote, .toggle, #btnPlot, #btnCalc { display: none !important; }
+  /* Show the title block in print */
+  .topbar{
+    position: static !important;   /* avoid sticky quirks in print */
+    display: block !important;
+    border-bottom: 1px solid #ddd;
+    background: #fff !important;
+    padding: 10px 0 !important;
+  }
+
+  /* Hide only interactive controls */
+  .topbar__actions,
+  .actions,
+  #plotNote,
+  .toggle,
+  #btnPlot,
+  #btnCalc,
+  #btnPrint{
+    display: none !important;
+  }
+
   body{ background: #fff; }
   .card{ box-shadow: none; }
   .container{ max-width: 100%; margin: 0; }
